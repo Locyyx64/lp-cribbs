@@ -1,0 +1,7 @@
+The significance of the distribution of word lengths:
+	1. It determines the style of the text, thus making cribbing easier (more formal texts tend to have a higher frequency of longer words)
+	2. Hints at the principles by which the text was encrypted
+
+
+If the WLDs of the solved-plaintext and the unsolved-ciphered texts are nearly identical, that pretty much means that the ciphered runic text was most likely encrypted beforeit was converted the runes (or encrypted before AND after), making the text a LOT more difficult to decipher
+In this case, the WLDs of the solved-ciphered and unsolved-ciphered texts moderately differ.

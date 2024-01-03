@@ -1,0 +1,6 @@
+# Ignore early, experimental files.
+
+analysis/word_freq_dist.py
+data/crib?.txt
+data/cribs_improved.txt
+data/temp.txt
