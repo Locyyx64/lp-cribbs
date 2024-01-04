@@ -2,6 +2,7 @@
 
 import sys
 import os
+import re
 
 file_dir = os.path.dirname(__file__)
 lib_dir = os.path.join(file_dir, "..", "lib")
@@ -31,18 +32,27 @@ def get_crib_candidates_text(max_len: int, additional_words=False) -> dict:
             crib_candidates_text["11"] += [word.replace('\n', '') for word in file.read().split()]
     return crib_candidates_text
 
+def get_all_crib_targets(words: list, limited=True, limit=10, already_numified=True):
+    words_parsed = [word for word in words if word[0] != "." and word[0] != "\n"]
+    if not limited:
+        words_parsed_pref = words_parsed
+    else:
+        words_parsed_pref = words_parsed[:limit]
+    if not already_numified:
+        words_parsed_pref = [numify_runes(word) for word in words_parsed_pref]
+    yield words_parsed_pref
 
-crib_targets = [word for word in all_words_runes if word[0] != "." and word[0] != "\n"]
-crib_targets_limited = crib_targets[:10]
-crib_targets_indexed = enumerate(crib_targets)
+    ## CIPHERED VERSIONS
+    words_var1 = [rune_atbash(word, already_numified=already_numified) for word in words_parsed_pref]
+    words_var2 = [crune_shift(word, already_numified=already_numified) for word in words_parsed_pref]
+    words_var3 = [[rune_atbash(word, already_numified=already_numified) for word in offset_var] for offset_var in words_var2]
+    words_var4 = [crune_shift(word, already_numified=already_numified) for word in words_var1]
 
-max_length = max([len(word) for word in crib_targets])
+    yield [words_var1, words_var2, words_var3, words_var4]
 
- ## - CIPHERED VARIATIONS OF THE CRIB TARGETS - ##
+    # NOTE: Other variations to add: non-linear shift (Vigenere, Beaufort), Quagmire-like ciphers, Bifid, Playfair, Nihilist, Affine, etc.
 
-cribt_var1 = [rune_atbash(word) for word in crib_targets_limited]
-cribt_var2 = [crune_shift(word) for word in crib_targets_limited]
-cribt_var3 = [[rune_atbash(word) for word in offset_var] for offset_var in cribt_var2]
-cribt_var4 = [crune_shift(word) for word in cribt_var1]
 
-# NOTE: Other variations to add: non-linear shift (Vigenere, Beaufort), Quagmire-like ciphers, Bifid, Playfair, Nihilist, Affine, etc.
+if __name__ == '__main__':
+    ## RESERVED FOR TESTING
+    pass

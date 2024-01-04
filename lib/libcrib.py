@@ -86,9 +86,7 @@ def numify_runes(word: str, exception=None, debug=False) -> str:
 
 
 def calc_rune_len(word: str, exception=None, already_numified=False) -> int:
-    improved_word = word
-    if not already_numified:
-        improved_word = numify_runes(word, exception)
+    improved_word = numify_runes(word, exception) if not already_numified else word
     return len(improved_word)
 
 def calc_rune_diff(base: str, crib: str, base_exceptions=None, crib_exceptions=None, verbose=False, show_key=False, show_delta=False, show_all=False, base_numified=False, crib_numified=False, debug=False) -> list:
@@ -109,9 +107,13 @@ def calc_rune_diff(base: str, crib: str, base_exceptions=None, crib_exceptions=N
         print("func /calc_rune_diff/ ;; Right before differential calculation; numifications have been completed")
 
     for i in range(len(improved_base)):
-        # Note to myself: shouldn't we do the subtraction vice versa?
-        differential.append(futhorc_runeset.index(improved_base[i])-futhorc_runeset.index(improved_crib[i]))
-    
+        base_idx = futhorc_runeset.index(improved_base[i])
+        crib_idx = futhorc_runeset.index(improved_crib[i])
+        difference = base_idx-crib_idx
+        if difference >= 0:
+            differential.append(difference)
+        else:
+            differential.append(base_idx+len(futhorc_runeset)-crib_idx)
     if verbose:
         if not show_key and not show_delta:
             print(f"DIFF: {improved_base} ----> {improved_crib} {differential}")
@@ -144,7 +146,7 @@ def vkeygetf_diff(differential: list) -> str:
         if diff == 0:
             key += "_"
             continue
-        key += futhorc_runeset[abs(diff)-1]
+        key += futhorc_runeset[diff-1]
     return key
 
 def vkeygetf_diff_err(differential: list) -> list:
@@ -156,33 +158,34 @@ def vkeygetf_diff_err(differential: list) -> list:
             keys[1] += "_"
             keys[2] += "_"
             continue
-        keys[0] += (futhorc_runeset[abs(diff)-1])
-        keys[1] += (futhorc_runeset[abs(diff)])
-        keys[2] += (futhorc_runeset[abs(diff)-2])
+        keys[0] += (futhorc_runeset[diff-1])
+        keys[1] += (futhorc_runeset[diff])
+        keys[2] += (futhorc_runeset[diff-2])
     return keys
 
-def rune_atbash(chars: str, exception=None) -> str:
+def rune_atbash(chars: str, exception=None, already_numified=False) -> str:
     ## Do an atbash of the word on the futhorc runeset.
-    return ''.join([futhorc_runeset[len(futhorc_runeset)-futhorc_runeset.index(char)-1] for char in numify_runes(chars, exception)])
+    improved_chars = numify_runes(chars, exception) if not already_numified else chars
+    return ''.join([futhorc_runeset[len(futhorc_runeset)-futhorc_runeset.index(char)-1] for char in improved_chars])
 
-def crune_shift(chars: str, exception=None, n=None) -> list:
+def crune_shift(chars: str, exception=None, already_numified=False, n=None) -> list:
     ## Do a standard Caesar shifting of the word on the futhorc runeset. By default, this function
     ## returns all possible shifts.
 
-    improved_chars = numify_runes(chars, exception)
+    improved_chars = numify_runes(chars, exception) if not already_numified else chars
     variations = []
-    
+
     if not n:
         n = len(futhorc_runeset)
     for i in range(n):
         variations.append(''.join([futhorc_runeset[(futhorc_runeset.index(char)+i)%len(futhorc_runeset)] for char in improved_chars]))
     return variations
 
-def nlrune_shift(chars: str, differential: list, exception=None) -> str:
+def nlrune_shift(chars: str, differential: list, exception=None, already_numified=False) -> str:
     ## Do a non-linear shifting of the word on the futhorc runeset. The differential (the array of shifts) has to be
     ## provided.
 
-    improved_chars = numify_runes(chars, exception)
+    improved_chars = numify_runes(chars, exception) if not already_numified else chars
 
     variation = ""
     for i in range(len(improved_chars)):
